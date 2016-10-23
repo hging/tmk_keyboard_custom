@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /* USB Device descriptor parameter */
-#define VENDOR_ID       0x16c0
-#define PRODUCT_ID      0x27db
-#define DEVICE_VER      0x0005
-#define MANUFACTURER    kai1103@gmail.com
+#define VENDOR_ID       0x1209
+#define PRODUCT_ID      0x2333
+#define DEVICE_VER      0x0100
+#define MANUFACTURER    Kai Ryu
 #define PRODUCT         Kimera
 #define DESCRIPTION     t.m.k. keyboard firmware for Kimera
 
@@ -57,7 +57,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* enable customized backlight logic */
 #define BACKLIGHT_CUSTOM
 #define CUSTOM_LED_ENABLE
-#define RGB_LED_ENABLE
 
 /* number of leds */
 #define LED_COUNT 4

@@ -57,6 +57,7 @@ SRC =	keymap_common.c \
 	i2c_wrapper.c \
 	kimera.c \
 	paj7620.c \
+	ssd1306.c \
 	light_ws2812.c \
 	rgb.c
 
@@ -130,6 +131,7 @@ endif
 ifdef DEFS
     OPT_DEFS += $(foreach DEF,$(DEFS),-D$(DEF))
 endif
+OPT_DEFS += -DRGB_LED_ENABLE -DGESTURE_ENABLE
 
 # Build Options
 #   comment out to disable the options.
@@ -140,7 +142,7 @@ EXTRAKEY_ENABLE = yes	# Audio control and System control(+450)
 CONSOLE_ENABLE = yes	# Console for debug(+400)
 COMMAND_ENABLE = yes	# Commands for debug and configuration
 #SLEEP_LED_ENABLE = yes	# Breathing sleep LED during USB suspend
-NKRO_ENABLE = yes	# USB Nkey Rollover - not yet supported in LUFA
+#NKRO_ENABLE = yes	# USB Nkey Rollover - not yet supported in LUFA
 USB_6KRO_ENABLE = yes	# USB 6key Rollover
 #PS2_MOUSE_ENABLE = yes	# PS/2 mouse(TrackPoint) support
 #PS2_USE_BUSYWAIT = yes

@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "i2c_wrapper.h"
 #include "kimera.h"
 #include "paj7620.h"
+#include "ssd1306.h"
 #include "keymap_in_eeprom.h"
 #include "timer.h"
 #include "backlight.h"
@@ -54,8 +55,10 @@ static matrix_row_t matrix_debouncing[MATRIX_ROWS];
 #endif
 
 static uint16_t kimera_scan_timestamp;
+#ifdef GESTURE_ENABLE
 static bool has_paj7620 = false;
 extern uint8_t paj7620_info[2];
+#endif
 
 inline
 uint8_t matrix_rows(void)
@@ -101,9 +104,8 @@ void matrix_init(void)
     }
 #endif
 
-    PORTD &= ~(1<<PD4);
-
 #if 0
+#ifdef GESTURE_ENABLE
     has_paj7620 = paj7620_init();
     if (has_paj7620) {
         xprintf("PAJ7620 init success\n");
@@ -112,26 +114,50 @@ void matrix_init(void)
         xprintf("PAJ7620 init fail\n");
     }
 #endif
+#endif
+
+#ifdef OLED_ENABLE
+    _delay_ms(5000);
+    ssd1306_init();
+    ssd1306_demo();
+#endif
+
+    PORTD &= ~(1<<PD4);
 }
 
 uint8_t matrix_scan(void)
 {
-    i2c_wrapper_task();
+#if 0
+    static uint8_t once = 1;
+    if (once) {
+        once = 0;
+        has_paj7620 = paj7620_init();
+        if (has_paj7620) {
+            xprintf("PAJ7620 init success\n");
+        }
+        else {
+            xprintf("PAJ7620 init fail\n");
+        }
+    }
+#endif
 
     if (timer_elapsed(kimera_scan_timestamp) >= 1000) {
         xprintf("======== 1s task ========\n");
         xprintf("Scan, %u\n", kimera_scan_timestamp);
         kimera_scan_timestamp = timer_read();
-        kimera_scan();
 #if 0
+        kimera_scan();
+#endif
+#if GESTURE_ENABLE
         xprintf("PAJ7620: %d, ", has_paj7620?1:0);
-        xprintf("0x%2X, 0x%2X\n", paj7620_info[0], paj7620_info[1]);
+        xprintf("0x%d, 0x%d\n", paj7620_info[0], paj7620_info[1]);
 #endif
         xprintf("=========================\n");
     }
 
-    xprintf("Row: %d, %u\n", matrix_current_row, timer_read());
+    //xprintf("Row: %d, %u\n", matrix_current_row, timer_read());
 
+#if 0
 #if IMPROVED_DEBOUNCE
     uint16_t elapsed = timer_elapsed(matrix_row_timestamp[matrix_current_row]);
     if (elapsed >= 1) {
@@ -260,13 +286,14 @@ uint8_t matrix_scan(void)
         }
     }
 #endif
+#endif
 
-    xprintf("Row End\n");
+    //xprintf("Row End\n");
 
-#if 0
+#if GESTURE_ENABLE
     if (has_paj7620) {
         uint8_t gesture = paj7620_read_gesture();
-        xprintf("PAJ7620 gesture raw: %d\n", gesture);
+        //xprintf("PAJ7620 gesture raw: %d\n", gesture);
         if (gesture & PAJ7620_GES_UP_FLAG) {
             xprintf("Up\n");
             backlight_increase();
@@ -296,7 +323,7 @@ uint8_t matrix_scan(void)
             xprintf("Count-Clockwise\n");
         }
         gesture = paj7620_read_gesture1();
-        xprintf("PAJ7620 gesture1 raw: %d\n", gesture);
+        //xprintf("PAJ7620 gesture1 raw: %d\n", gesture);
         if (gesture & PAJ7620_WAVE_FLAG) {
             xprintf("Wave\n");
             backlight_toggle();

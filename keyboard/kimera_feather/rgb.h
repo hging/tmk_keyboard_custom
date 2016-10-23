@@ -45,7 +45,8 @@ enum {
 
 #define EECONFIG_RGB (uint8_t *)15
 #define RGB_UNCONFIGURED 0xFF
-#define RGB_LED_COUNT 16
+//#define RGB_LED_COUNT 16
+#define RGB_LED_COUNT 75
 
 void rgb_init(void);
 void rgb_toggle(void);

@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
+#include "timer.h"
 #include "i2cmaster.h"
 #include "i2c_wrapper.h"
 #include "debug.h"
@@ -41,8 +42,6 @@ __asm__ __volatile__ (  \
 #define SCL_CLOCK       400000L
 #define SCL_DURATION    (1000000L/SCL_CLOCK)/2
 
-static uint8_t i2c_wdt_enabled = 0;
-
 extern uint8_t i2c_force_stop;
 
 static void wdt_init(void);
@@ -51,11 +50,13 @@ void i2c_wrapper_init(void)
 {
     xprintf("I2C Init\n");
 
+    timer_init();
+
     /* init i2c */
     i2c_init();
 
     /* init watch dog */
-    wdt_init();
+    /* wdt_init(); */
 }
 
 void i2c_wrapper_task(void)
@@ -72,6 +73,7 @@ void wdt_init(void)
     sei();
 }
 
+#if 0
 ISR(WDT_vect)
 {
     xprintf("i2c timeout\n");
@@ -95,3 +97,4 @@ ISR(WDT_vect)
     /* escape from loop */
     i2c_force_stop = 1;
 }
+#endif
