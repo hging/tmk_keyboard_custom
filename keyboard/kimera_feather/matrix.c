@@ -33,6 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "timer.h"
 #include "backlight.h"
 #include "action_layer.h"
+#include "i2cmaster.h"
+#include "twiboot.h"
 
 
 #ifndef DEBOUNCE
@@ -58,6 +60,9 @@ static uint16_t kimera_scan_timestamp;
 #ifdef GESTURE_ENABLE
 static bool has_paj7620 = false;
 extern uint8_t paj7620_info[2];
+#define GES_REACTION_TIME       500
+#define GES_ENTRY_TIME          800
+#define GES_QUIT_TIME           1000
 #endif
 
 inline
@@ -84,6 +89,8 @@ void matrix_init(void)
     kimera_init();
     kimera_scan_timestamp = timer_read();
 
+    // rgb_init();
+
     // initialize row and col
     kimera_unselect_rows();
 
@@ -105,6 +112,9 @@ void matrix_init(void)
 #endif
 
 #if 0
+    _delay_ms(5000);
+#endif
+
 #ifdef GESTURE_ENABLE
     has_paj7620 = paj7620_init();
     if (has_paj7620) {
@@ -114,10 +124,8 @@ void matrix_init(void)
         xprintf("PAJ7620 init fail\n");
     }
 #endif
-#endif
 
 #ifdef OLED_ENABLE
-    _delay_ms(5000);
     ssd1306_init();
     ssd1306_demo();
 #endif
@@ -142,22 +150,107 @@ uint8_t matrix_scan(void)
 #endif
 
     if (timer_elapsed(kimera_scan_timestamp) >= 1000) {
-        xprintf("======== 1s task ========\n");
-        xprintf("Scan, %u\n", kimera_scan_timestamp);
-        kimera_scan_timestamp = timer_read();
-#if 0
+        // xprintf("======== 1s task ========\n");
+        // xprintf("Scan, %u\n", kimera_scan_timestamp);
+        // kimera_scan_timestamp = timer_read();
+#if 1
         kimera_scan();
 #endif
 #if GESTURE_ENABLE
         xprintf("PAJ7620: %d, ", has_paj7620?1:0);
         xprintf("0x%d, 0x%d\n", paj7620_info[0], paj7620_info[1]);
 #endif
-        xprintf("=========================\n");
+#if 0
+        uint8_t ret;
+        xprintf("I2C Scan:\n ");
+        xprintf("   0123456789ABCDEF\n");
+        for (uint8_t i = 0; i < 0x80; i++) {
+            if (i % 16 == 0) xprintf(" %d ", i / 16);
+            ret = i2c_start((i << 1) | I2C_WRITE);
+            i2c_stop();
+            xprintf("%d", ret);
+            if (i % 16 == 15) xprintf("\n");
+        }
+        xprintf("\n");
+        xprintf("TWIBOOT: ");
+        ret = i2c_start((TWI_ADDRESS << 1) | I2C_WRITE);
+        if (ret == 0) {
+            xprintf("%d ", ret);
+            i2c_write(CMD_READ_VERSION);
+            i2c_stop();
+            i2c_start((TWI_ADDRESS << 1) | I2C_READ);
+            for (uint8_t i = 0; i < 16; i++) {
+                uint8_t data;
+                if (i != 15) {
+                    data = i2c_readAck();
+                    xprintf("%c", data, data);
+                }
+                else {
+                    data = i2c_readNak();
+                    xprintf("%c\n", data, data);
+                }
+            }
+            i2c_stop();
+        }
+        else {
+            xprintf("\n");
+        }
+
+        static uint8_t once = 1;
+        if (once) {
+            ret = i2c_start((TWI_ADDRESS << 1) | I2C_WRITE);
+            if (ret == 0) {
+                i2c_write(CMD_WRITE_MEMORY);
+                i2c_write(MEMTYPE_FLASH);
+                i2c_write(0x00);
+                i2c_write(0x80);
+                i2c_write('T');
+                i2c_write('E');
+                i2c_write('S');
+                i2c_write('T');
+                i2c_write(' ');
+                i2c_write('F');
+                i2c_write('L');
+                i2c_write('A');
+                i2c_write('S');
+                i2c_write('H');
+                for (uint8_t i = 0; i < 128 - 10; i++) {
+                    i2c_write('\0');
+                }
+                i2c_stop();
+            }
+            ret = i2c_start((TWI_ADDRESS << 1) | I2C_WRITE);
+            if (ret == 0) {
+                i2c_write(CMD_WRITE_MEMORY);
+                i2c_write(MEMTYPE_EEPROM);
+                i2c_write(0x00);
+                i2c_write(0x20);
+                i2c_write('T');
+                i2c_write('E');
+                i2c_write('S');
+                i2c_write('T');
+                i2c_write(' ');
+                i2c_write('E');
+                i2c_write('E');
+                i2c_write('P');
+                i2c_write('R');
+                i2c_write('O');
+                i2c_write('M');
+                i2c_write('\0');
+                i2c_stop();
+            }
+            once = 0;
+        }
+        else {
+            xprintf("TWIBOOT: Done\n");
+        }
+#endif
+        // xprintf("=========================\n");
     }
 
     //xprintf("Row: %d, %u\n", matrix_current_row, timer_read());
 
-#if 0
+#if 1
 #if IMPROVED_DEBOUNCE
     uint16_t elapsed = timer_elapsed(matrix_row_timestamp[matrix_current_row]);
     if (elapsed >= 1) {
@@ -293,40 +386,59 @@ uint8_t matrix_scan(void)
 #if GESTURE_ENABLE
     if (has_paj7620) {
         uint8_t gesture = paj7620_read_gesture();
+        uint8_t keycode = 0;
         //xprintf("PAJ7620 gesture raw: %d\n", gesture);
         if (gesture & PAJ7620_GES_UP_FLAG) {
             xprintf("Up\n");
-            backlight_increase();
+            //backlight_increase();
+            keycode = KC_MPLY;
         }
         if (gesture & PAJ7620_GES_DOWN_FLAG) {
             xprintf("Down\n");
-            backlight_decrease();
+            //backlight_decrease();
+            //keycode = KC_VOLD;
         }
         if (gesture & PAJ7620_GES_LEFT_FLAG) {
             xprintf("Left\n");
-            layer_on(1);
+            //layer_on(1);
+            //ssd1306_start_scroll_left(0x00, 0x0F);
+            keycode = KC_MPRV;
         }
         if (gesture & PAJ7620_GES_RIGHT_FLAG) {
             xprintf("Right\n");
-            layer_off(1);
+            //layer_off(1);
+            //ssd1306_start_scroll_right(0x00, 0x0F);
+            keycode = KC_MNXT;
         }
         if (gesture & PAJ7620_GES_FORWARD_FLAG) {
             xprintf("Forward\n");
+            keycode = KC_MFFD;
         }
         if (gesture & PAJ7620_GES_BACKWARD_FLAG) {
             xprintf("Backward\n");
+            keycode = KC_MRWD;
         }
         if (gesture & PAJ7620_GES_CLOCKWISE_FLAG) {
             xprintf("Clockwise\n");
+            keycode = KC_VOLU;
         }
         if (gesture & PAJ7620_GES_COUNT_CLOCKWISE_FLAG) {
             xprintf("Count-Clockwise\n");
+            keycode = KC_VOLD;
         }
         gesture = paj7620_read_gesture1();
         //xprintf("PAJ7620 gesture1 raw: %d\n", gesture);
         if (gesture & PAJ7620_WAVE_FLAG) {
             xprintf("Wave\n");
-            backlight_toggle();
+            //backlight_toggle();
+            //ssd1306_stop_scroll();
+            keycode = KC_MUTE;
+        }
+        if (keycode) {
+            register_code(keycode);
+            send_keyboard_report();
+            unregister_code(keycode);
+            send_keyboard_report();
         }
     }
 #endif

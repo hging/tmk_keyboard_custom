@@ -63,7 +63,8 @@ void rgb_read_config(void)
 
 void rgb_write_config(void)
 {
-    eeprom_write_byte(EECONFIG_RGB, rgb_config.raw);
+    //eeprom_write_byte(EECONFIG_RGB, rgb_config.raw);
+    eeprom_write_byte(EECONFIG_RGB, 0x81);
 }
 
 void rgb_toggle(void)

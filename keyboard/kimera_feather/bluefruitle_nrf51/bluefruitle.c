@@ -68,9 +68,9 @@ void bluefruitle_init(void)
     serial_init();
     xprintf("Serial Init\n");
 
-    bluefruitle_puts("AT+FACTORYRESET\n");
-    xprintf("Sent\n");
-    xprintf("%s\n", bluefruitle_gets(TIMEOUT));
+    // bluefruitle_puts("AT+FACTORYRESET\n");
+    // xprintf("Sent\n");
+    // xprintf("%s\n", bluefruitle_gets(TIMEOUT));
 
     bluefruitle_puts("AT+GAPDEVNAME=Hging's Bluefruit Keyboard\n");
     xprintf("%s\n", bluefruitle_gets(TIMEOUT));
@@ -82,8 +82,8 @@ void bluefruitle_init(void)
     bluefruitle_puts("AT+GAPSTARTADV\n");
     xprintf("%s\n", bluefruitle_gets(TIMEOUT));
 
-    bluefruitle_puts("AT+GAPDELBONDS\n");
-    xprintf("%s\n", bluefruitle_gets(TIMEOUT));
+    // bluefruitle_puts("AT+GAPDELBONDS\n");
+    // xprintf("%s\n", bluefruitle_gets(TIMEOUT));
 
     bluefruitle_puts("ATZ\n");
     xprintf("%s\n", bluefruitle_gets(TIMEOUT));

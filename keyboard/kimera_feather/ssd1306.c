@@ -139,6 +139,9 @@ static const uint8_t ssd1306_demo_table[] PROGMEM = {
 #endif
 };
 
+static uint8_t ssd1306_command(uint8_t command);
+static uint8_t ssd1306_data(uint8_t data);
+
 uint8_t ssd1306_init(void)
 {
     /* reset */
@@ -167,11 +170,11 @@ uint8_t ssd1306_demo(void)
 {
     uint8_t ret = 0;
 
-    ssd1306_command(SSD1306_COMM_COLUMNADDR);
+    ssd1306_command(SSD1306_COMM_COLUMN_ADDR);
     ssd1306_command(0);
     ssd1306_command(SSD1306_LCD_WIDTH - 1);
 
-    ssd1306_command(SSD1306_COMM_PAGEADDR);
+    ssd1306_command(SSD1306_COMM_PAGE_ADDR);
     ssd1306_command(0);
     ssd1306_command(7);
 
@@ -264,6 +267,35 @@ uint8_t ssd1306_data(uint8_t data)
 stop:
     i2c_stop();
     return ret;
+}
+
+void ssd1306_start_scroll_left(uint8_t start, uint8_t stop)
+{
+    ssd1306_command(SSD1306_COMM_LEFT_HORIZONTAL_SCROLL);
+    ssd1306_command(0x00);
+    ssd1306_command(start);
+    ssd1306_command(0x00);
+    ssd1306_command(stop);
+    ssd1306_command(0x00);
+    ssd1306_command(0xFF);
+    ssd1306_command(SSD1306_COMM_ACTIVATE_SCROLL);
+}
+
+void ssd1306_start_scroll_right(uint8_t start, uint8_t stop)
+{
+    ssd1306_command(SSD1306_COMM_RIGHT_HORIZONTAL_SCROLL);
+    ssd1306_command(0x00);
+    ssd1306_command(start);
+    ssd1306_command(0x00);
+    ssd1306_command(stop);
+    ssd1306_command(0x00);
+    ssd1306_command(0xFF);
+    ssd1306_command(SSD1306_COMM_ACTIVATE_SCROLL);
+}
+
+void ssd1306_stop_scroll(void)
+{
+    ssd1306_command(SSD1306_COMM_DEACTIVATE_SCROLL);
 }
 
 #endif

@@ -14,7 +14,7 @@ void sdep_init(void)
 
 bool sdep_send_packet(uint16_t command, const uint8_t *buf, uint8_t count, uint8_t more_data)
 {
-#if 1
+#if 0
     xprintf("SDEP Send: 0x%04X, %u, %u, %s\n", command, count, more_data, buf);
 #endif
     sdep_msg_command_t msg;
@@ -146,7 +146,7 @@ bool sdep_receive_packet(sdep_msg_response_t *response)
 
     spi_cs_disable();
 
-#if 1
+#if 0
     xprintf("\nSDEP Receive: 0x%02X, 0x%04X, %u, %u, %16s\n", header->msg_type, header->cmd_id, header->length, header->more_data, response->payload);
 #endif
 

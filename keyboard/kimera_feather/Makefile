@@ -131,7 +131,7 @@ endif
 ifdef DEFS
     OPT_DEFS += $(foreach DEF,$(DEFS),-D$(DEF))
 endif
-OPT_DEFS += -DRGB_LED_ENABLE -DGESTURE_ENABLE
+OPT_DEFS += -DRGB_LED_ENABLE
 
 # Build Options
 #   comment out to disable the options.

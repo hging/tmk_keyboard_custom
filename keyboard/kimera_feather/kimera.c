@@ -166,7 +166,7 @@ void kimera_scan(void)
             if (ret == 0) {
                 i2c_stop();
                 if ((exp_online & (1<<exp)) == 0) {
-                    xprintf("found: %d\n", exp);
+                    // xprintf("found: %d\n", exp);
                     exp_online |= (1<<exp);
                     expander_init(exp);
                     clear_keyboard();
@@ -174,15 +174,19 @@ void kimera_scan(void)
             }
             else {
                 if ((exp_online & (1<<exp)) != 0) {
-                    xprintf("lost: %d\n", exp);
+                    // xprintf("lost: %d\n", exp);
                     exp_online &= ~(1<<exp);
                     clear_keyboard();
                 }
             }
         }
     }
-    print("Exp in use: "); pbin(exp_in_use); print("\n");
-    print("Exp online: "); pbin(exp_online); print("\n");
+    if (0)
+    {
+	    print("Exp in use: "); pbin(exp_in_use); print("\n");
+	    print("Exp online: "); pbin(exp_online); print("\n");
+    	/* code */
+    }
 }
 
 inline
