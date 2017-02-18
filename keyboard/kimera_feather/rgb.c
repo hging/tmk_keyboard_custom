@@ -40,7 +40,9 @@ static void rgb_write_config(void);
 static void rgb_read_config(void);
 static void rgb_set_level(uint8_t level);
 static void rgb_refresh(void);
+#if 0
 static void hue_to_rgb(uint16_t hue, struct cRGB *rgb);
+#endif
 static void hsb_to_rgb(uint16_t hue, uint8_t saturation, uint8_t brightness, struct cRGB *rgb);
 
 void rgb_init(void)
@@ -63,8 +65,7 @@ void rgb_read_config(void)
 
 void rgb_write_config(void)
 {
-    //eeprom_write_byte(EECONFIG_RGB, rgb_config.raw);
-    eeprom_write_byte(EECONFIG_RGB, 0x81);
+    eeprom_update_byte(EECONFIG_RGB, rgb_config.raw);
 }
 
 void rgb_toggle(void)
@@ -119,12 +120,13 @@ void rgb_step(void)
         rgb_config.level = 0;
     }
     rgb_config.enable = (rgb_config.level != 0);
+    rgb_write_config();
     rgb_set_level(rgb_config.level);
 }
 
 void rgb_set_level(uint8_t level)
 {
-    xprintf("RGB Level: %d\n", level);
+    dprintf("RGB Level: %d\n", level);
     if (level == RGB_OFF) {
         rgb_brightness = 0;
     }
@@ -195,6 +197,7 @@ void rgb_refresh(void)
     ws2812_setleds(rgb_color, RGB_LED_COUNT);
 }
 
+#if 0
 void hue_to_rgb(uint16_t hue, struct cRGB *rgb)
 {
     uint8_t hi = hue / 60;
@@ -209,6 +212,7 @@ void hue_to_rgb(uint16_t hue, struct cRGB *rgb)
         case 5: rgb->r = 255; rgb->g = 0;   rgb->b = q;   break;
     }
 }
+#endif
 
 /*
  * original code: https://blog.adafruit.com/2012/03/14/constant-brightness-hsb-to-rgb-algorithm/

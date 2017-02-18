@@ -89,8 +89,6 @@ void matrix_init(void)
     kimera_init();
     kimera_scan_timestamp = timer_read();
 
-    // rgb_init();
-
     // initialize row and col
     kimera_unselect_rows();
 
@@ -148,14 +146,13 @@ uint8_t matrix_scan(void)
         }
     }
 #endif
+    i2c_wrapper_task();
 
     if (timer_elapsed(kimera_scan_timestamp) >= 1000) {
-        // xprintf("======== 1s task ========\n");
-        // xprintf("Scan, %u\n", kimera_scan_timestamp);
-        // kimera_scan_timestamp = timer_read();
-#if 1
+        xprintf("======== 1s task ========\n");
+        xprintf("Scan, %u\n", kimera_scan_timestamp);
+        kimera_scan_timestamp = timer_read();
         kimera_scan();
-#endif
 #if GESTURE_ENABLE
         xprintf("PAJ7620: %d, ", has_paj7620?1:0);
         xprintf("0x%d, 0x%d\n", paj7620_info[0], paj7620_info[1]);
@@ -245,7 +242,7 @@ uint8_t matrix_scan(void)
             xprintf("TWIBOOT: Done\n");
         }
 #endif
-        // xprintf("=========================\n");
+        xprintf("=========================\n");
     }
 
     //xprintf("Row: %d, %u\n", matrix_current_row, timer_read());

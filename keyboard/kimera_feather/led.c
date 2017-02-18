@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void led_set(uint8_t usb_led)
 {
-#if 0
     if (usb_led & (1<<USB_LED_NUM_LOCK)) {
         // output low
         LED1_DDR  |=  (1<<LED1_BIT);
@@ -52,7 +51,6 @@ void led_set(uint8_t usb_led)
         LED3_DDR  &= ~(1<<LED3_BIT);
         LED3_PORT &= ~(1<<LED3_BIT);
     }
-#endif
 }
 
 #endif

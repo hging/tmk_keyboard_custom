@@ -181,12 +181,8 @@ void kimera_scan(void)
             }
         }
     }
-    if (0)
-    {
-	    print("Exp in use: "); pbin(exp_in_use); print("\n");
-	    print("Exp online: "); pbin(exp_online); print("\n");
-    	/* code */
-    }
+    print("Exp in use: "); pbin(exp_in_use); print("\n");
+    print("Exp online: "); pbin(exp_online); print("\n");
 }
 
 inline

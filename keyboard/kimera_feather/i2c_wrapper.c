@@ -48,8 +48,9 @@ static void wdt_init(void);
 
 void i2c_wrapper_init(void)
 {
-    xprintf("I2C Init\n");
+    dprintf("I2C Init\n");
 
+    /* init timer */
     timer_init();
 
     /* init i2c */
